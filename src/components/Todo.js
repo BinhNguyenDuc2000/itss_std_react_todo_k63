@@ -26,25 +26,51 @@ function Todo() {
     { key: getKey(), text: '明日の準備をする', done: false },
     /* テストコード 終了 */
   ]);
-
-  const addItem = text => {
-     putItems([...items, { key: getKey(), text, done: false }]);
-  }
   
+  const [filter, setFilter] = React.useState('ALL');
+
+  const displayItems = items.filter(item => {
+    if (filter === 'ALL') return true;
+    if (filter === 'TODO') return !item.done;
+    if (filter === 'DONE') return item.done;
+  });
+
+  
+  const handleCheck = checked => {
+    const newItems = items.map(item => {
+      if (item.key === checked.key) {
+        item.done = !item.done;
+      }
+      return item;
+    });
+    putItems(newItems);
+  };
+  
+  const addItem = text => {
+    putItems([...items, { key: getKey(), text, done: false }]);
+  };
+  
+  const handleFilterChange = value => setFilter(value);
+
   return (
     <div className="panel">
       <div className="panel-heading">
         ITSS ToDoアプリ
       </div>
-      <Input onAdd = {addItem} />
-      {items.map(item => (
+      <Input onAdd={addItem} />
+      <Filter
+        onChange={handleFilterChange}
+        value={filter}
+      />
+      {displayItems.map(item => (
         <TodoItem 
-          key = {item.key}
-          item = {item}
+          key={item.key}
+          item={item}
+          onCheck={handleCheck}
         />
       ))}
       <div className="panel-block">
-        {items.length} items
+        {displayItems.length} items
       </div>
     </div>
   );
